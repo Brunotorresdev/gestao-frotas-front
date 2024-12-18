@@ -33,19 +33,26 @@ import {
   IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-
-
+import { usePatchDeliveries } from "../hooks/usePatchDeliveries";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const FleetTable = () => {
   const { data: deliveries, isLoading } = useDeliveries();
   const createDeliveries = useCreateDeliveries();
+  const updateDeliveries = usePatchDeliveries();
+
   const deleteDelivery = useDeleteDeliveries();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
 
   const handleAddDelivery = async (newDelivery) => {
-    await createDeliveries.mutateAsync(newDelivery);
+    if (newDelivery.id) {
+      await updateDeliveries.mutateAsync(newDelivery);
+    } else {
+      await createDeliveries.mutateAsync(newDelivery);
+    }
     setIsModalOpen(false);
   };
 
@@ -64,7 +71,15 @@ const FleetTable = () => {
     setIsConfirmModalOpen(false);
   };
 
+  const handleMarkAsDelivered = async (id) => {
+    const payload = { id, status: "Concluida" };
+    await updateDeliveries.mutateAsync(payload);
+  };
 
+  const handleUnmarkAsDelivered = async (id) => {
+    const payload = { id, status: "Em andamento" };
+    await updateDeliveries.mutateAsync(payload);
+  };
 
   const columns = [
     { accessorKey: "id", header: "Entrega ID" },
@@ -78,14 +93,20 @@ const FleetTable = () => {
           return (
             <span>
               {cargoType}{" "}
-              <FaShieldAlt style={{ color: "blue", marginLeft: "5px" }} title="Seguro" />
+              <FaShieldAlt
+                style={{ color: "blue", marginLeft: "5px" }}
+                title="Seguro"
+              />
             </span>
           );
         if (cargoType === "Combustível")
           return (
             <span>
               {cargoType}{" "}
-              <FaExclamationCircle style={{ color: "red", marginLeft: "5px" }} title="Perigosa" />
+              <FaExclamationCircle
+                style={{ color: "red", marginLeft: "5px" }}
+                title="Perigosa"
+              />
             </span>
           );
         return cargoType;
@@ -119,17 +140,43 @@ const FleetTable = () => {
     {
       header: "Ações",
       cell: ({ row }) => (
-        <div>
+        <div style={{ display: "flex" }}>
           <Tooltip title="Editar">
-            <IconButton color="primary" onClick={() => handleEdit(row.original)}>
+            <IconButton
+              color="primary"
+              onClick={() => handleEdit(row.original)}
+            >
               <FaEdit />
             </IconButton>
           </Tooltip>
           <Tooltip title="Excluir">
-            <IconButton color="error" onClick={() => handleDelete(row.original)}>
+            <IconButton
+              color="error"
+              onClick={() => handleDelete(row.original)}
+            >
               <FaTrash />
             </IconButton>
           </Tooltip>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            {row.original.status === "Em andamento" ? (
+              <Tooltip title="Marcar como entregue">
+                <IconButton
+                  onClick={() => handleMarkAsDelivered(row.original.id)}
+                >
+                  <CheckCircleIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Desmarcar entregue">
+                <IconButton
+                  onClick={() => handleUnmarkAsDelivered(row.original.id)}
+                >
+                  <CancelIcon color="error" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </div>
         </div>
       ),
     },
@@ -143,7 +190,12 @@ const FleetTable = () => {
 
   return (
     <Box mt={5} sx={{ p: 2 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="h4">Controle de Frota e Entregas</Typography>
         <Tooltip title="Cadastrar Nova Entrega" arrow>
           <Fab
@@ -183,7 +235,10 @@ const FleetTable = () => {
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableCell key={header.id}>
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -194,7 +249,10 @@ const FleetTable = () => {
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>

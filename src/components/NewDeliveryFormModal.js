@@ -15,6 +15,10 @@ import { useDrivers } from "../hooks/getDrivers";
 import NewTruckModal from "./NewTruckModal";
 import NewDriverModal from "./NewDriverModal";
 import { defaultStylesModal } from "../utils/stylesDefault";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from "dayjs";
 
 Modal.setAppElement("#root");
 
@@ -25,16 +29,20 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   // const [drivers, setDrivers] = useState(listDrivers?.drivers || []);
 
   // const [trucks, setTrucks] = useState(listTrucks?.trucks || []);
+  const handleDateChange = (newValue) => {
+    setFormData({ ...formData, date: newValue });
+  };
 
   console.log("initialData", initialData);
 
   const [formData, setFormData] = useState({
+    id: null,
     destination: "",
     type: "",
     value: "",
     truckId: "",
     driverId: "",
-    date: "",
+    date: null,
     status: "Em andamento",
   });
 
@@ -42,12 +50,13 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     if (initialData) {
       setFormData({
         ...formData,
+        id: initialData?.id || null,
         destination: initialData?.destination || "",
         type: initialData?.type || "",
         value: initialData?.value || "",
         truckId: initialData?.truckId || "",
         driverId: initialData?.driverId || "",
-        date: initialData?.date || "",
+        date: dayjs(initialData?.date) || null,
         status: initialData?.status || "Em andamento",
       });
 
@@ -72,7 +81,7 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       value: "",
       truckId: "",
       driverId: "",
-      date: "",
+      date: null,
       status: "Em andamento",
     });
   };
@@ -86,7 +95,7 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       value: "",
       truckId: "",
       driverId: "",
-      date: "",
+      date: null,
       status: "Em andamento",
     });
   };
@@ -173,15 +182,17 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               <AddCircleOutlineIcon />
             </IconButton>
           </Box>
-          <TextField
-            label="Data"
-            type="date"
-            name="date"
-            InputLabelProps={{ shrink: true }}
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              label="Data e Hora"
+              value={formData.date}
+              onChange={handleDateChange}
+              renderInput={(params) => <TextField {...params} required />}
+            />
+          </LocalizationProvider>
+
+
         </Box>
         <Box marginTop={2} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" type="submit">
