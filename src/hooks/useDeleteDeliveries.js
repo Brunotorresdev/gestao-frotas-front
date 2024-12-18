@@ -1,21 +1,26 @@
-
 import { instance } from '../services/api';
-import { QueryClient, useMutation } from '@tanstack/react-query';
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 
 async function deleteDeliveries(id) {
   return instance.delete(`/deliveries/${id}`);
 }
 
+function useDeleteDeliveries() {
+  const queryClient = useQueryClient(); // Get the query client instance
 
-function useDeleteDeliveries(id) {
+  const { enqueueSnackbar } = useSnackbar(); // Use enqueueSnackbar correctly
 
   return useMutation({
-    mutationKey: ['delete-deliveries', id],
+    mutationKey: ['delete-deliveries'],
     mutationFn: (id) => deleteDeliveries(id),
     onSuccess: () => {
-      // QueryClient.refetchQueries(['deliveries']);
-      
+      queryClient.refetchQueries(['deliveries']);
+
+      enqueueSnackbar('Delivery deleted successfully!', { variant: 'success' });
+    },
+    onError: () => {
+      enqueueSnackbar('Failed to delete delivery. Please try again.', { variant: 'error' });
     },
   });
 }

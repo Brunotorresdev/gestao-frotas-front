@@ -15,10 +15,11 @@ import { useDrivers } from "../hooks/getDrivers";
 import NewTruckModal from "./NewTruckModal";
 import NewDriverModal from "./NewDriverModal";
 import { defaultStylesModal } from "../utils/stylesDefault";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
+import { Label } from "@mui/icons-material";
 
 Modal.setAppElement("#root");
 
@@ -26,9 +27,16 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   const { data: listTrucks } = useTrucks();
   const { data: listDrivers } = useDrivers();
 
-  // const [drivers, setDrivers] = useState(listDrivers?.drivers || []);
+  const [destinations, setDestinations] = useState([
+    "São Paulo",
+    "Rio de Janeiro",
+    "Curitiba",
+    "Salvador",
+    "Nordeste",
+    "Argentina",
+    "Amazônia",
+  ]);
 
-  // const [trucks, setTrucks] = useState(listTrucks?.trucks || []);
   const handleDateChange = (newValue) => {
     setFormData({ ...formData, date: newValue });
   };
@@ -60,11 +68,29 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         status: initialData?.status || "Em andamento",
       });
 
-      // setDrivers([...drivers, initialData.driver]);
+      if (
+        initialData?.truck &&
+        !listTrucks?.trucks.some((truck) => truck.id === initialData.truck.id)
+      ) {
+        listTrucks?.trucks.push(initialData.truck);
+      }
 
-      // setTrucks([...trucks, initialData.truck]);
+      if (
+        initialData?.driver &&
+        !listDrivers?.drivers.some(
+          (driver) => driver.id === initialData.driver.id
+        )
+      ) {
+        listDrivers?.drivers.push(initialData.driver);
+      }
+
+      if (initialData?.destination) {
+        console.log("initialData?.destination", initialData?.destination);
+        setDestinations([...destinations, initialData?.destination]);
+        console.log("destinations>>>", destinations);
+      }
     }
-  }, [initialData]);
+  }, [initialData, listTrucks, listDrivers]);
 
   const [isTruckModalOpen, setTruckModalOpen] = useState(false);
   const [isDriverModalOpen, setDriverModalOpen] = useState(false);
@@ -101,7 +127,7 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   };
 
   const handleClose = () => {
-    console.log('clear')
+    console.log("clear");
     onClose();
     handleClearInputs();
   };
@@ -119,13 +145,22 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box display="flex" flexDirection="column" gap={2}>
-          <TextField
-            label="Destino"
+          <div>Destino</div>
+          <Select
             name="destination"
             value={formData.destination}
             onChange={handleChange}
+            fullWidth
+            displayEmpty
             required
-          />
+          >
+            <MenuItem value="">Selecione Destino</MenuItem>
+            {destinations?.map((destination) => (
+              <MenuItem key={destination} value={destination}>
+                {destination}
+              </MenuItem>
+            ))}
+          </Select>
           <TextField
             label="Tipo de Carga"
             name="type"
@@ -169,7 +204,6 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               onChange={handleChange}
               displayEmpty
               required
-              
             >
               <MenuItem value="">Selecione Motorista</MenuItem>
               {listDrivers?.drivers?.map((driver) => (
@@ -186,13 +220,12 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
               label="Data e Hora"
+              format="DD/MM/YYYY HH:mm"
               value={formData.date}
               onChange={handleDateChange}
               renderInput={(params) => <TextField {...params} required />}
             />
           </LocalizationProvider>
-
-
         </Box>
         <Box marginTop={2} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" type="submit">

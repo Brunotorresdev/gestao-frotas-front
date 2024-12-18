@@ -3,21 +3,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 
 // API function to create deliveries
-async function createDeliveries(payload) {
+async function createTrucks(payload) {
   return instance.post('/deliveries', payload);
 }
 
 // Hook to create deliveries
-function useCreateDeliveries() {
+function useCreateTrucks() {
   const queryClient = useQueryClient(); // Get the query client instance
   const { enqueueSnackbar } = useSnackbar(); // Use enqueueSnackbar correctly
 
   return useMutation({
-    mutationKey: ['create-deliveries'],
-    mutationFn: createDeliveries,
+    mutationKey: ['create-trucks'],
+    mutationFn: createTrucks,
     onSuccess: () => {
       // Refetch 'deliveries' queries after successful mutation
-      queryClient.refetchQueries(['deliveries']);
+      queryClient.refetchQueries(['trucks']);
       enqueueSnackbar('Delivery created successfully!', { variant: 'success' });
     },
     onError: () => {
@@ -26,4 +26,4 @@ function useCreateDeliveries() {
   });
 }
 
-export { createDeliveries, useCreateDeliveries };
+export { createTrucks, useCreateTrucks };

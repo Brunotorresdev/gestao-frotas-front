@@ -12,7 +12,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import NewDeliveryFormModal from "./NewDeliveryFormModal";
-import { deliveriesService, useDeliveries } from "../hooks/getDeliveries";
+import { useDeliveries } from "../hooks/getDeliveries";
 import { SkeletonTable } from "./Skeleton";
 import { useCreateDeliveries } from "../hooks/useCreateDeliveries";
 import { useDeleteDeliveries } from "../hooks/useDeleteDeliveries";
@@ -36,24 +36,30 @@ import AddIcon from "@mui/icons-material/Add";
 import { usePatchDeliveries } from "../hooks/usePatchDeliveries";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import dayjs from "dayjs";
+import FullPageLoader from "./FullPageLoader";
 
 const FleetTable = () => {
   const { data: deliveries, isLoading } = useDeliveries();
   const createDeliveries = useCreateDeliveries();
   const updateDeliveries = usePatchDeliveries();
-
+  const [loading, setLoading] = useState(false);
   const deleteDelivery = useDeleteDeliveries();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
 
   const handleAddDelivery = async (newDelivery) => {
+    setLoading(true);
     if (newDelivery.id) {
       await updateDeliveries.mutateAsync(newDelivery);
     } else {
       await createDeliveries.mutateAsync(newDelivery);
     }
-    setIsModalOpen(false);
+
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 3000);
   };
 
   const handleEdit = (delivery) => {
@@ -67,23 +73,44 @@ const FleetTable = () => {
   };
 
   const confirmDelete = async () => {
+    setLoading(true);
+
     await deleteDelivery.mutateAsync(selectedDelivery.id);
     setIsConfirmModalOpen(false);
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 3000);
   };
 
   const handleMarkAsDelivered = async (id) => {
+    setLoading(true);
+
     const payload = { id, status: "Concluida" };
     await updateDeliveries.mutateAsync(payload);
+    setLoading(false);
   };
 
   const handleUnmarkAsDelivered = async (id) => {
+    setLoading(true);
+
     const payload = { id, status: "Em andamento" };
     await updateDeliveries.mutateAsync(payload);
+    setLoading(false);
   };
 
   const columns = [
-    { accessorKey: "id", header: "Entrega ID" },
     { accessorKey: "destination", header: "Destino" },
+    {
+      accessorKey: "date",
+      header: "Data entrega",
+
+      cell: (info) => {
+        const date = info.getValue();
+
+        return dayjs(date).format("DD/MM/YYYY HH:mm");
+      },
+    },
+
     {
       accessorKey: "type",
       header: "Tipo de Carga",
@@ -190,6 +217,7 @@ const FleetTable = () => {
 
   return (
     <Box mt={5} sx={{ p: 2 }}>
+      <FullPageLoader isLoading={loading} />
       <Stack
         direction="row"
         justifyContent="space-between"

@@ -1,8 +1,8 @@
 import { Skeleton, Stack } from "@mui/material"
 
 export const SkeletonLoading = () => {
-    return (<Stack maxWidth={'210px'}>
-        <Skeleton variant="rounded" width={'210px'} height={111} />
+    return (<Stack maxWidth={'300px'}>
+        <Skeleton variant="rounded" width={'300px'} height={130} />
       </Stack>)
 }
 
