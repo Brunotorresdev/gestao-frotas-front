@@ -2,26 +2,23 @@ import { instance } from '../services/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 
-// API function to create deliveries
 async function createTrucks(payload) {
-  return instance.post('/deliveries', payload);
+  return instance.post('/trucks', payload);
 }
 
-// Hook to create deliveries
 function useCreateTrucks() {
-  const queryClient = useQueryClient(); // Get the query client instance
-  const { enqueueSnackbar } = useSnackbar(); // Use enqueueSnackbar correctly
+  const queryClient = useQueryClient(); 
+  const { enqueueSnackbar } = useSnackbar(); 
 
   return useMutation({
     mutationKey: ['create-trucks'],
     mutationFn: createTrucks,
     onSuccess: () => {
-      // Refetch 'deliveries' queries after successful mutation
       queryClient.refetchQueries(['trucks']);
-      enqueueSnackbar('Delivery created successfully!', { variant: 'success' });
+      enqueueSnackbar('Truck created successfully!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to create delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Failed to Truck delivery. Please try again.', { variant: 'error' });
     },
   });
 }

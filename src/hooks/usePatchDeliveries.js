@@ -6,17 +6,13 @@ import { useSnackbar } from 'notistack';
 
 async function createPatch(payload) {
 
-
-  // const { status, ...restPayload } = payload;
-  
-
   return instance.patch(`/deliveries/${payload.id}`, {status: payload.status, deliveryData: payload});
 }
 
 
 function usePatchDeliveries(payload) {
 
-   const queryClient = useQueryClient(); // Get the query client instance
+   const queryClient = useQueryClient(); 
   
     const { enqueueSnackbar } = useSnackbar(); 
 

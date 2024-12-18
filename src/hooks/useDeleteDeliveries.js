@@ -7,9 +7,9 @@ async function deleteDeliveries(id) {
 }
 
 function useDeleteDeliveries() {
-  const queryClient = useQueryClient(); // Get the query client instance
+  const queryClient = useQueryClient(); 
 
-  const { enqueueSnackbar } = useSnackbar(); // Use enqueueSnackbar correctly
+  const { enqueueSnackbar } = useSnackbar(); 
 
   return useMutation({
     mutationKey: ['delete-deliveries'],

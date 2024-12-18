@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "react-modal";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { defaultStylesModal } from "../utils/stylesDefault";
+import { useCreateDrivers } from "../hooks/useCreateDrivers";
 
 const NewDriverModal = ({ isOpen, onClose }) => {
   const [driverData, setDriverData] = useState({ name: "" });
@@ -11,10 +12,18 @@ const NewDriverModal = ({ isOpen, onClose }) => {
     setDriverData({ ...driverData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const createDriver = useCreateDrivers()
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Novo Motorista:", driverData);
+    try {
+      await createDriver.mutateAsync(driverData);
     onClose();
+
+    } catch(error) {
+      console.error(error)
+    }
   };
 
   return (

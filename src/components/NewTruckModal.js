@@ -2,19 +2,27 @@ import React, { useState } from "react";
 import Modal from "react-modal";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { defaultStylesModal } from "../utils/stylesDefault";
+import { useCreateTrucks } from "../hooks/useCreateTrucks";
 
 const NewTruckModal = ({ isOpen, onClose }) => {
   const [truckData, setTruckData] = useState({ name: "", plate: "" });
+
+  const createTruck = useCreateTrucks()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTruckData({ ...truckData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Novo Caminhão:", truckData);
+    try {
+      await createTruck.mutateAsync(truckData);
     onClose();
+
+    } catch(error) {
+      console.error(error)
+    }
   };
 
   return (
