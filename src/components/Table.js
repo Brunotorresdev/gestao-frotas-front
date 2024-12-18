@@ -58,8 +58,9 @@ const FleetTable = () => {
     }
 
     setTimeout(() => {
+      setLoading(false);
       setIsModalOpen(false);
-    }, 3000);
+    }, 1000);
   };
 
   const handleEdit = (delivery) => {
@@ -77,7 +78,9 @@ const FleetTable = () => {
 
     await deleteDelivery.mutateAsync(selectedDelivery.id);
     setIsConfirmModalOpen(false);
+
     setTimeout(() => {
+      setLoading(false);
       setIsModalOpen(false);
     }, 3000);
   };
@@ -145,19 +148,18 @@ const FleetTable = () => {
       cell: (info) => {
         const value = info.getValue();
         const rate = info.row?.original?.rate;
-        if (value > 30000) {
-          return (
-            <span>
-              R$ {value.toLocaleString()}{" "}
-              {rate > 0 && `+ ${rate.toLocaleString()}`}{" "}
+        return (
+          <span>
+            R$ {value.toLocaleString()}{" "}
+            {rate > 0 && `+ ${rate.toLocaleString()}`}{" "}
+            {value > 30000 && (
               <FaMoneyBillWave
                 style={{ color: "green", marginLeft: "5px" }}
                 title="Valiosa"
               />
-            </span>
-          );
-        }
-        return `R$ ${value.toLocaleString()}`;
+            )}
+          </span>
+        );
       },
     },
     { accessorKey: "truck.name", header: "Caminhão" },

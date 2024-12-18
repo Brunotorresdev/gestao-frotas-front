@@ -1,4 +1,3 @@
-import "./App.css";
 import AppRouter from "./routes/AppRoutes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "notistack";

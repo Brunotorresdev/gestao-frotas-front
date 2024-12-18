@@ -6,24 +6,18 @@ import { useDeliveriesKpis } from "../../hooks/getDeliveriesKpis";
 import { Box, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const mockValues = {
-  inRotation: 8,
-  available: 2,
-  totalValue: 2000,
-};
-
 const Container = styled.div`
   display: flex;
   gap: 20px;
 `;
 
 const Main = () => {
-  const { data: kpis, isLoading, error, isFetched } = useDeliveriesKpis();
+  const { data: kpis, isFetched } = useDeliveriesKpis();
 
   const navigate = useNavigate();
 
   return (
-    <Box maxWidth={"1300px"} margin={"auto"}>
+    <Box maxWidth={"1300px"} margin={"auto"} p={5}>
       <Stack
         mb={"100px"}
         flexDirection={"row"}
@@ -47,26 +41,38 @@ const Main = () => {
       </Stack>
       <Container>
         {isFetched ? (
-          <>
+          <Stack  width={'100%'} flexDirection={"row"} flexWrap={'wrap'} gap={2}>
+              <Kpi
+                title={"Disponíveis"}
+                content={`${kpis?.available || "sem"} caminhões`}
+              />
             <Kpi
-              title={"em rota"}
+              title={"Em rota"}
               content={`${kpis?.inRotation || "sem"} caminhões`}
-            />
-            <Kpi
-              title={"disponiveis"}
-              content={`${kpis?.available || "sem"} caminhões`}
             />
             <Kpi
               title={"Valor total"}
               content={`R$ ${kpis?.totalValue.toLocaleString() || "0"}`}
             />
-          </>
+          <Kpi
+              title={"Disponíveis"}
+              content={`${(kpis?.totalDrivers - kpis?.inRotationDrivers) || "sem"} motoristas `}
+          />
+          <Kpi
+              title={"Em Rota"}
+              content={`${kpis?.inRotationDrivers || "sem"} motoristas`}
+          />
+          </Stack>
         ) : (
-          <>
+          <Stack
+          width={'100%'} flexDirection={"row"} flexWrap={'wrap'} gap={2}
+          >
             <SkeletonLoading />
             <SkeletonLoading />
             <SkeletonLoading />
-          </>
+            <SkeletonLoading />
+            <SkeletonLoading />
+          </Stack>
         )}
       </Container>
 

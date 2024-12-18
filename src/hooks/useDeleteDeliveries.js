@@ -17,10 +17,10 @@ function useDeleteDeliveries() {
     onSuccess: () => {
       queryClient.refetchQueries(['deliveries']);
 
-      enqueueSnackbar('Delivery deleted successfully!', { variant: 'success' });
+      enqueueSnackbar('Entrega deletada com sucesso!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to delete delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Falha ao deletar entrega. Por favor, tente novamente.', { variant: 'error' });
     },
   });
 }

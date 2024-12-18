@@ -19,7 +19,6 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
-import { Label } from "@mui/icons-material";
 
 Modal.setAppElement("#root");
 
@@ -40,8 +39,6 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   const handleDateChange = (newValue) => {
     setFormData({ ...formData, date: newValue });
   };
-
-  console.log("initialData", initialData);
 
   const [formData, setFormData] = useState({
     id: null,
@@ -85,9 +82,7 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
       }
 
       if (initialData?.destination) {
-        console.log("initialData?.destination", initialData?.destination);
         setDestinations([...destinations, initialData?.destination]);
-        console.log("destinations>>>", destinations);
       }
     }
   }, [initialData, listTrucks, listDrivers]);
@@ -127,7 +122,6 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   };
 
   const handleClose = () => {
-    console.log("clear");
     onClose();
     handleClearInputs();
   };
@@ -236,8 +230,6 @@ const NewDeliveryFormModal = ({ isOpen, onClose, onSave, initialData }) => {
           </Button>
         </Box>
       </form>
-
-      {/* Modais de cadastro */}
       <NewTruckModal
         isOpen={isTruckModalOpen}
         onClose={() => setTruckModalOpen(false)}

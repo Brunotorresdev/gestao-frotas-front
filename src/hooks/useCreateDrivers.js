@@ -15,10 +15,10 @@ function useCreateDrivers() {
     mutationFn: createDrivers,
     onSuccess: () => {
       queryClient.refetchQueries(['drivers']);
-      enqueueSnackbar('Drivers created successfully!', { variant: 'success' });
+      enqueueSnackbar('Motorista criado com sucesso!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to Drivers delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Falha ao criar motorista. Por favor, tente novamente.', { variant: 'error' });
     },
   });
 }

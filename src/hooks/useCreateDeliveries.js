@@ -15,10 +15,10 @@ function useCreateDeliveries() {
     mutationFn: createDeliveries,
     onSuccess: () => {
       queryClient.refetchQueries(['deliveries']);
-      enqueueSnackbar('Delivery created successfully!', { variant: 'success' });
+      enqueueSnackbar('Entrega criada com sucesso!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to create delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Falha ao criar entrega. Por favor, tente novamente.', { variant: 'error' });
     },
   });
 }

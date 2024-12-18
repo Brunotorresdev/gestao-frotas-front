@@ -6,7 +6,7 @@ function NotFound() {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate("/"); // Redireciona para a página inicial
+    navigate("/");
   };
 
   return (

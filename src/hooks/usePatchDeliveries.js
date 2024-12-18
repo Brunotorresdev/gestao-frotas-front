@@ -1,4 +1,3 @@
-
 import { instance } from '../services/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -21,11 +20,10 @@ function usePatchDeliveries(payload) {
     mutationFn: (payload) => createPatch(payload),
     onSuccess: () => {
       queryClient.refetchQueries(['deliveries']);
-
-      enqueueSnackbar('Delivery deleted successfully!', { variant: 'success' });
+      enqueueSnackbar('Entrega atualizada com sucesso!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to delete delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Falha ao atualizar entrega. Por favor, tente novamente.', { variant: 'error' });
     },
   });
 }

@@ -15,10 +15,10 @@ function useCreateTrucks() {
     mutationFn: createTrucks,
     onSuccess: () => {
       queryClient.refetchQueries(['trucks']);
-      enqueueSnackbar('Truck created successfully!', { variant: 'success' });
+      enqueueSnackbar('Caminhão criado com sucesso!', { variant: 'success' });
     },
     onError: () => {
-      enqueueSnackbar('Failed to Truck delivery. Please try again.', { variant: 'error' });
+      enqueueSnackbar('Falha ao criar caminhão. Por favor, tente novamente.', { variant: 'error' });
     },
   });
 }
