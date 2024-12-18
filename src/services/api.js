@@ -1,5 +1,7 @@
+import axios from "axios";
+console.log('process.env.BASE_API',process.env.REACT_APP_BASE_API)
 export const instance = axios.create({
-    baseURL: process.env.BASE_API,
+    baseURL: process.env.REACT_APP_BASE_API,
     timeout: 1000,
     headers: {'X-Custom-Header': 'foobar'}
   });

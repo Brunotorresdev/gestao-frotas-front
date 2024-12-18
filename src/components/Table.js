@@ -1,174 +1,209 @@
 import React, { useState } from "react";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import { FaExclamationCircle, FaShieldAlt, FaMoneyBillWave } from "react-icons/fa";
-import NewDeliveryFormModal from "./NewDeliveryFormModal"; 
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import {
+  FaExclamationCircle,
+  FaShieldAlt,
+  FaMoneyBillWave,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
+import NewDeliveryFormModal from "./NewDeliveryFormModal";
+import { deliveriesService, useDeliveries } from "../hooks/getDeliveries";
+import { SkeletonTable } from "./Skeleton";
+import { useCreateDeliveries } from "../hooks/useCreateDeliveries";
+import { useDeleteDeliveries } from "../hooks/useDeleteDeliveries";
+import ModalConfirm from "./ModalConfirm";
+import {
+  Fab,
+  Stack,
+  Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
+  Typography,
+  IconButton,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
-const fleetData = [
-  {
-    truckId: "C001",
-    driver: "João Silva",
-    deliveries: [
-      {
-        deliveryId: "E001",
-        destination: "São Paulo",
-        cargoType: "Eletrônicos",
-        value: 35000,
-        insurance: true,
-        date: "2024-12-14",
-      },
-    ],
-  },
-  {
-    truckId: "C002",
-    driver: "Maria Oliveira",
-    deliveries: [
-      {
-        deliveryId: "E003",
-        destination: "Argentina",
-        cargoType: "Alimentos",
-        value: 15000,
-        date: "2024-12-12",
-      },
-    ],
-  },
-];
 
-const columns = [
-  {
-    accessorKey: "deliveryId",
-    header: "Entrega ID",
-  },
-  {
-    accessorKey: "destination",
-    header: "Destino",
-  },
-  {
-    accessorKey: "cargoType",
-    header: "Tipo de Carga",
-    cell: (info) => {
-      const cargoType = info.getValue();
-      if (cargoType === "Eletrônicos")
-        return (
-          <span>
-            {cargoType} <FaShieldAlt style={{ color: "blue", marginLeft: "5px" }} title="Seguro" />
-          </span>
-        );
-      if (cargoType === "Combustível")
-        return (
-          <span>
-            {cargoType} <FaExclamationCircle style={{ color: "red", marginLeft: "5px" }} title="Perigosa" />
-          </span>
-        );
-      return cargoType;
-    },
-  },
-  {
-    accessorKey: "value",
-    header: "Valor (R$)",
-    cell: (info) => {
-      const value = info.getValue();
-      if (value > 30000) {
-        return (
-          <span>
-            R$ {value.toLocaleString()}{" "}
-            <FaMoneyBillWave style={{ color: "green", marginLeft: "5px" }} title="Valiosa" />
-          </span>
-        );
-      }
-      return `R$ ${value.toLocaleString()}`;
-    },
-  },
-  {
-    accessorKey: "date",
-    header: "Data da Entrega",
-  },
-];
 
 const FleetTable = () => {
-  const [data, setData] = useState(
-    fleetData.flatMap((truck) =>
-      truck.deliveries.map((delivery) => ({
-        ...delivery,
-        truckId: truck.truckId,
-        driver: truck.driver,
-      }))
-    )
-  );
-
+  const { data: deliveries, isLoading } = useDeliveries();
+  const createDeliveries = useCreateDeliveries();
+  const deleteDelivery = useDeleteDeliveries();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedDelivery, setSelectedDelivery] = useState(null);
 
-  const handleAddDelivery = (newDelivery) => {
-    setData((prevData) => [...prevData, newDelivery]);
-    setIsModalOpen(false); 
+  const handleAddDelivery = async (newDelivery) => {
+    await createDeliveries.mutateAsync(newDelivery);
+    setIsModalOpen(false);
   };
 
+  const handleEdit = (delivery) => {
+    setSelectedDelivery(delivery);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (delivery) => {
+    setSelectedDelivery(delivery);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    await deleteDelivery.mutateAsync(selectedDelivery.id);
+    setIsConfirmModalOpen(false);
+  };
+
+
+
+  const columns = [
+    { accessorKey: "id", header: "Entrega ID" },
+    { accessorKey: "destination", header: "Destino" },
+    {
+      accessorKey: "type",
+      header: "Tipo de Carga",
+      cell: (info) => {
+        const cargoType = info.getValue();
+        if (cargoType === "Eletrônicos")
+          return (
+            <span>
+              {cargoType}{" "}
+              <FaShieldAlt style={{ color: "blue", marginLeft: "5px" }} title="Seguro" />
+            </span>
+          );
+        if (cargoType === "Combustível")
+          return (
+            <span>
+              {cargoType}{" "}
+              <FaExclamationCircle style={{ color: "red", marginLeft: "5px" }} title="Perigosa" />
+            </span>
+          );
+        return cargoType;
+      },
+    },
+    {
+      accessorKey: "value",
+      header: "Valor (R$) + Taxa por localidade",
+      cell: (info) => {
+        const value = info.getValue();
+        const rate = info.row?.original?.rate;
+        if (value > 30000) {
+          return (
+            <span>
+              R$ {value.toLocaleString()}{" "}
+              {rate > 0 && `+ ${rate.toLocaleString()}`}{" "}
+              <FaMoneyBillWave
+                style={{ color: "green", marginLeft: "5px" }}
+                title="Valiosa"
+              />
+            </span>
+          );
+        }
+        return `R$ ${value.toLocaleString()}`;
+      },
+    },
+    { accessorKey: "truck.name", header: "Caminhão" },
+    { accessorKey: "truck.plate", header: "Placa" },
+    { accessorKey: "driver.name", header: "Motorista" },
+    { accessorKey: "status", header: "Status" },
+    {
+      header: "Ações",
+      cell: ({ row }) => (
+        <div>
+          <Tooltip title="Editar">
+            <IconButton color="primary" onClick={() => handleEdit(row.original)}>
+              <FaEdit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Excluir">
+            <IconButton color="error" onClick={() => handleDelete(row.original)}>
+              <FaTrash />
+            </IconButton>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
   const table = useReactTable({
-    data,
+    data: deliveries || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h1>Controle de Frota e Entregas</h1>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        style={{
-          marginBottom: "1rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Cadastrar Nova Entrega
-      </button>
+    <Box mt={5} sx={{ p: 2 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4">Controle de Frota e Entregas</Typography>
+        <Tooltip title="Cadastrar Nova Entrega" arrow>
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={() => {
+              setSelectedDelivery(null);
+              setIsModalOpen(true);
+            }}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      </Stack>
+
       <NewDeliveryFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddDelivery}
-        fleetData={fleetData}
+        initialData={selectedDelivery}
       />
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
+
+      <ModalConfirm
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmDelete}
+        message="Tem certeza que deseja excluir esta entrega?"
+      />
+
+      {isLoading ? (
+        <SkeletonTable />
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableCell key={header.id}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "8px",
-                  }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+            </TableHead>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Box>
   );
 };
 

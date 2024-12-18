@@ -1,15 +1,23 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { defaultStylesKpi } from "../utils/stylesDefault";
 
 const Kpi = ({ title, content }) => {
   return (
     <Box
-      border={"1px solid red"}
-      borderRadius={"20px"}
-      maxWidth={"200px"}
-      width={"100%"}
+      sx={defaultStylesKpi}
     >
-      <h2>{title}</h2>
-      <p>{content}</p>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: "bold", color: "primary.main", marginBottom: "0.5rem" }}
+      >
+        {title}
+      </Typography>
+      <Typography
+        variant="h4"
+        sx={{ fontWeight: "bold", color: "text.primary" }}
+      >
+        {content}
+      </Typography>
     </Box>
   );
 };
